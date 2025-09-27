@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar, Clock, ArrowRight, Users, Award, BookOpen } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import Layout from '@/components/Layout';
 
 const News = () => {
@@ -21,7 +22,8 @@ const News = () => {
       category: 'Actualité',
       excerpt: 'Nos élèves de 3ème se sont distingués au concours Kangourou des mathématiques avec 3 prix départementaux.',
       readTime: '3 min',
-      icon: Award
+      icon: Award,
+      link: '/news/concours-matematiques'
     },
     {
       title: 'Nouvelle option théâtre dès la rentrée 2024',
@@ -29,7 +31,8 @@ const News = () => {
       category: 'Pédagogie',
       excerpt: 'L\'établissement propose une nouvelle option théâtre pour développer la créativité et l\'expression orale des élèves.',
       readTime: '2 min',
-      icon: BookOpen
+      icon: BookOpen,
+      link: '/news/option-theatre'
     },
     {
       title: 'Séjour linguistique en Angleterre - Inscriptions ouvertes',
@@ -37,7 +40,8 @@ const News = () => {
       category: 'Voyage',
       excerpt: 'Les inscriptions pour le séjour linguistique en Angleterre sont ouvertes pour les élèves de 4ème et 3ème.',
       readTime: '4 min',
-      icon: Users
+      icon: Users,
+      link: '#'
     },
     {
       title: 'Remise des diplômes du Brevet 2023',
@@ -45,7 +49,8 @@ const News = () => {
       category: 'Événement',
       excerpt: 'Cérémonie de remise des diplômes du Brevet National des Collèges promotion 2023.',
       readTime: '2 min',
-      icon: Award
+      icon: Award,
+      link: '#'
     },
     {
       title: 'Projet environnemental : Création d\'un jardin pédagogique',
@@ -53,7 +58,8 @@ const News = () => {
       category: 'Projet',
       excerpt: 'Les élèves de 6ème participent à la création d\'un jardin pédagogique dans la cour de récréation.',
       readTime: '5 min',
-      icon: BookOpen
+      icon: BookOpen,
+      link: '#'
     },
     {
       title: 'Conférence sur l\'orientation en classe de 3ème',
@@ -61,7 +67,8 @@ const News = () => {
       category: 'Orientation',
       excerpt: 'Soirée d\'information destinée aux parents et élèves de 3ème sur les choix d\'orientation post-collège.',
       readTime: '3 min',
-      icon: Users
+      icon: Users,
+      link: '#'
     }
   ];
 
@@ -135,10 +142,12 @@ const News = () => {
                 </div>
                 <h2 className="text-3xl font-bold text-primary mb-4">{featuredNews.title}</h2>
                 <p className="text-muted-foreground mb-6 leading-relaxed">{featuredNews.excerpt}</p>
-                <Button className="group">
-                  Lire la suite
-                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                </Button>
+                <Link to="/news/portes-ouvertes">
+                  <Button className="group">
+                    Lire la suite
+                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
               </div>
             </div>
           </Card>
@@ -183,10 +192,12 @@ const News = () => {
                     <div className="w-10 h-10 bg-accent/10 rounded-full flex items-center justify-center">
                       <article.icon className="h-5 w-5 text-accent" />
                     </div>
-                    <Button variant="ghost" size="sm" className="group">
-                      Lire
-                      <ArrowRight className="ml-2 h-3 w-3 group-hover:translate-x-1 transition-transform" />
-                    </Button>
+                    <Link to={article.link || '#'}>
+                      <Button variant="ghost" size="sm" className="group">
+                        Lire
+                        <ArrowRight className="ml-2 h-3 w-3 group-hover:translate-x-1 transition-transform" />
+                      </Button>
+                    </Link>
                   </div>
                 </CardContent>
               </Card>

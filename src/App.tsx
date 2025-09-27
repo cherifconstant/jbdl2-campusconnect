@@ -9,6 +9,9 @@ import News from "./pages/News";
 import Contact from "./pages/Contact";
 import PrivateSpace from "./pages/PrivateSpace";
 import NotFound from "./pages/NotFound";
+import PortesOuvertes from "./pages/news/PortesOuvertes";
+import ConcoursMatematiques from "./pages/news/ConcoursMatematiques";
+import OptionTheatre from "./pages/news/OptionTheatre";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +25,9 @@ const App = () => (
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/news" element={<News />} />
+          <Route path="/news/portes-ouvertes" element={<PortesOuvertes />} />
+          <Route path="/news/concours-matematiques" element={<ConcoursMatematiques />} />
+          <Route path="/news/option-theatre" element={<OptionTheatre />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/students" element={<PrivateSpace type="students" />} />
           <Route path="/parents" element={<PrivateSpace type="parents" />} />
