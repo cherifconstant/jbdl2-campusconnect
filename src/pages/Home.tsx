@@ -1,7 +1,9 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { Link } from 'react-router-dom';
+import Autoplay from "embla-carousel-autoplay";
 import { 
   GraduationCap, 
   Users, 
@@ -11,9 +13,16 @@ import {
   User,
   Shield,
   ArrowRight,
-  Star
+  Star,
+  Camera
 } from 'lucide-react';
 import heroImage from '@/assets/hero-college.jpg';
+import salleClasse1 from '@/assets/gallery/salle-classe-1.jpg';
+import salleClasse2 from '@/assets/gallery/salle-classe-2.jpg';
+import laboratoire from '@/assets/gallery/laboratoire.jpg';
+import bibliotheque from '@/assets/gallery/bibliotheque.jpg';
+import cour from '@/assets/gallery/cour.jpg';
+import evenement1 from '@/assets/gallery/evenement-1.jpg';
 import Layout from '@/components/Layout';
 
 const Home = () => {
@@ -66,6 +75,39 @@ const Home = () => {
     },
   ];
 
+  const carouselImages = [
+    {
+      src: salleClasse1,
+      title: "Salles de classe modernes",
+      description: "Environnement d'apprentissage équipé des dernières technologies"
+    },
+    {
+      src: laboratoire,
+      title: "Laboratoire de sciences",
+      description: "Expériences pratiques pour développer l'esprit scientifique"
+    },
+    {
+      src: bibliotheque,
+      title: "Bibliothèque spacieuse",
+      description: "Plus de 5000 ouvrages pour enrichir les connaissances"
+    },
+    {
+      src: cour,
+      title: "Espaces de détente",
+      description: "Moments de convivialité et d'épanouissement personnel"
+    },
+    {
+      src: evenement1,
+      title: "Événements enrichissants",
+      description: "Vie scolaire dynamique avec de nombreuses activités"
+    },
+    {
+      src: salleClasse2,
+      title: "Pédagogie spécialisée",
+      description: "Salles adaptées à chaque matière pour un apprentissage optimal"
+    }
+  ];
+
   const recentNews = [
     {
       title: 'Journée Portes Ouvertes - 15 Mars 2024',
@@ -116,6 +158,73 @@ const Home = () => {
                 <Link to="/contact">Nous contacter</Link>
               </Button>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Photo Carousel Section */}
+      <section className="py-16 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <div className="flex items-center justify-center space-x-2 mb-4">
+              <Camera className="h-6 w-6 text-primary" />
+              <h2 className="text-3xl font-bold text-primary">Notre établissement en images</h2>
+            </div>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Découvrez nos installations modernes et l'atmosphère bienveillante qui caractérise notre collège
+            </p>
+          </div>
+          
+          <div className="max-w-5xl mx-auto">
+            <Carousel 
+              className="w-full"
+              plugins={[
+                Autoplay({
+                  delay: 4000,
+                  stopOnInteraction: true,
+                }),
+              ]}
+              opts={{
+                align: "start",
+                loop: true,
+              }}
+            >
+              <CarouselContent className="-ml-2 md:-ml-4">
+                {carouselImages.map((image, index) => (
+                  <CarouselItem key={index} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
+                    <Card className="group overflow-hidden border-0 shadow-card hover:shadow-elegant transition-all duration-300 hover:-translate-y-1">
+                      <div className="relative overflow-hidden">
+                        <img
+                          src={image.src}
+                          alt={image.title}
+                          className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      </div>
+                      <CardContent className="p-4">
+                        <h3 className="font-semibold text-lg mb-2 text-primary group-hover:text-accent transition-colors">
+                          {image.title}
+                        </h3>
+                        <p className="text-muted-foreground text-sm">
+                          {image.description}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="hidden sm:flex" />
+              <CarouselNext className="hidden sm:flex" />
+            </Carousel>
+          </div>
+          
+          <div className="text-center mt-8">
+            <Button variant="outline" asChild className="group">
+              <Link to="/gallery">
+                Voir toute la galerie
+                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </Button>
           </div>
         </div>
       </section>
