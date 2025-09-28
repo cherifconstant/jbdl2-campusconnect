@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import News from "./pages/News";
+import Gallery from "./pages/Gallery";
 import Contact from "./pages/Contact";
 import PrivateSpace from "./pages/PrivateSpace";
 import NotFound from "./pages/NotFound";
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/news/portes-ouvertes" element={<PortesOuvertes />} />
           <Route path="/news/concours-matematiques" element={<ConcoursMatematiques />} />
           <Route path="/news/option-theatre" element={<OptionTheatre />} />
+          <Route path="/gallery" element={<Gallery />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/students" element={<PrivateSpace type="students" />} />
           <Route path="/parents" element={<PrivateSpace type="parents" />} />
