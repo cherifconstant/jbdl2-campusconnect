@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, User, Users, GraduationCap, Shield } from 'lucide-react';
+import { Menu, User, Users, Shield, LogIn } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import collegeLogo from '@/assets/college-logo.png';
 
@@ -69,6 +69,12 @@ const Header = () => {
                 </Link>
               </Button>
             ))}
+            <Button variant="default" size="sm" asChild>
+              <Link to="/auth" className="flex items-center space-x-1">
+                <LogIn className="h-4 w-4" />
+                <span>Connexion</span>
+              </Link>
+            </Button>
           </div>
 
           {/* Mobile Menu */}
@@ -119,6 +125,14 @@ const Header = () => {
                         <span>{space.name}</span>
                       </Link>
                     ))}
+                    <Link
+                      to="/auth"
+                      onClick={() => setIsOpen(false)}
+                      className="flex items-center space-x-3 px-2 py-2 text-sm rounded-md transition-colors bg-primary text-primary-foreground mt-4"
+                    >
+                      <LogIn className="h-4 w-4" />
+                      <span>Connexion</span>
+                    </Link>
                   </div>
                 </div>
               </div>

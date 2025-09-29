@@ -1,8 +1,11 @@
+import { useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { toast } from '@/hooks/use-toast';
 import { 
   MapPin, 
   Phone, 
@@ -15,6 +18,49 @@ import {
 import Layout from '@/components/Layout';
 
 const Contact = () => {
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    subject: '',
+    message: '',
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const { error } = await supabase
+        .from('contact_messages')
+        .insert([formData]);
+
+      if (error) throw error;
+
+      toast({
+        title: "Message envoyé !",
+        description: "Nous vous répondrons dans les plus brefs délais.",
+      });
+
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        subject: '',
+        message: '',
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erreur",
+        description: "Impossible d'envoyer le message. Veuillez réessayer.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const contactInfo = [
     {
       icon: MapPin,
@@ -109,50 +155,73 @@ const Contact = () => {
                   Remplissez le formulaire ci-dessous et nous vous répondrons dans les plus brefs délais.
                 </p>
               </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="space-y-2">
-                    <Label htmlFor="firstName">Prénom *</Label>
-                    <Input id="firstName" placeholder="Votre prénom" required />
+                    <Label htmlFor="name">Nom complet *</Label>
+                    <Input 
+                      id="name" 
+                      placeholder="Jean Dupont" 
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      required 
+                    />
                   </div>
+                  
                   <div className="space-y-2">
-                    <Label htmlFor="lastName">Nom *</Label>
-                    <Input id="lastName" placeholder="Votre nom" required />
+                    <Label htmlFor="email">Email *</Label>
+                    <Input 
+                      id="email" 
+                      type="email" 
+                      placeholder="jean@example.com" 
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      required 
+                    />
                   </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email *</Label>
-                  <Input id="email" type="email" placeholder="votre.email@exemple.com" required />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Téléphone</Label>
-                  <Input id="phone" type="tel" placeholder="01 23 45 67 89" />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="subject">Sujet *</Label>
-                  <Input id="subject" placeholder="Objet de votre message" required />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="message">Message *</Label>
-                  <Textarea 
-                    id="message" 
-                    placeholder="Décrivez votre demande..." 
-                    className="min-h-[120px]"
-                    required 
-                  />
-                </div>
-                
-                <Button className="w-full" size="lg">
-                  Envoyer le message
-                </Button>
-                
-                <p className="text-xs text-muted-foreground">
-                  * Champs obligatoires. Vos données personnelles sont protégées et ne seront utilisées que pour traiter votre demande.
-                </p>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Téléphone</Label>
+                    <Input 
+                      id="phone" 
+                      type="tel" 
+                      placeholder="+33 6 12 34 56 78" 
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="subject">Sujet *</Label>
+                    <Input 
+                      id="subject" 
+                      placeholder="Inscription, Renseignements..." 
+                      value={formData.subject}
+                      onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                      required 
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="message">Message *</Label>
+                    <Textarea 
+                      id="message" 
+                      placeholder="Votre message..." 
+                      rows={6}
+                      value={formData.message}
+                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                      required 
+                    />
+                  </div>
+                  
+                  <Button type="submit" size="lg" className="w-full" disabled={loading}>
+                    {loading ? 'Envoi en cours...' : 'Envoyer le message'}
+                  </Button>
+                  
+                  <p className="text-xs text-muted-foreground">
+                    * Champs obligatoires. Vos données personnelles sont protégées et ne seront utilisées que pour traiter votre demande.
+                  </p>
+                </form>
               </CardContent>
             </Card>
 

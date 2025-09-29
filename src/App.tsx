@@ -9,6 +9,8 @@ import News from "./pages/News";
 import Gallery from "./pages/Gallery";
 import Contact from "./pages/Contact";
 import PrivateSpace from "./pages/PrivateSpace";
+import Auth from "./pages/Auth";
+import AdminNews from "./pages/AdminNews";
 import NotFound from "./pages/NotFound";
 import PortesOuvertes from "./pages/news/PortesOuvertes";
 import ConcoursMatematiques from "./pages/news/ConcoursMatematiques";
@@ -31,9 +33,10 @@ const App = () => (
           <Route path="/news/option-theatre" element={<OptionTheatre />} />
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/admin" element={<AdminNews />} />
           <Route path="/parents" element={<PrivateSpace type="parents" />} />
           <Route path="/teachers" element={<PrivateSpace type="teachers" />} />
-          <Route path="/admin" element={<PrivateSpace type="admin" />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
