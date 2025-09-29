@@ -18,7 +18,6 @@ const Header = () => {
   ];
 
   const spaces = [
-    { name: 'Espace Élèves', href: '/students', icon: GraduationCap },
     { name: 'Espace Parents', href: '/parents', icon: Users },
     { name: 'Espace Enseignants', href: '/teachers', icon: User },
     { name: 'Administration', href: '/admin', icon: Shield },

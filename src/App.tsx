@@ -31,7 +31,6 @@ const App = () => (
           <Route path="/news/option-theatre" element={<OptionTheatre />} />
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/students" element={<PrivateSpace type="students" />} />
           <Route path="/parents" element={<PrivateSpace type="parents" />} />
           <Route path="/teachers" element={<PrivateSpace type="teachers" />} />
           <Route path="/admin" element={<PrivateSpace type="admin" />} />
