@@ -23,7 +23,7 @@ const Auth = () => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         setSession(session);
-        navigate('/');
+        checkUserRoleAndRedirect(session.user.id);
       }
     });
 
@@ -31,12 +31,35 @@ const Auth = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       if (session) {
-        navigate('/');
+        checkUserRoleAndRedirect(session.user.id);
       }
     });
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  const checkUserRoleAndRedirect = async (userId: string) => {
+    try {
+      const { data } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (data?.role === 'admin') {
+        navigate('/admin');
+      } else if (data?.role === 'teacher') {
+        navigate('/teachers');
+      } else if (data?.role === 'parent') {
+        navigate('/parents');
+      } else {
+        navigate('/');
+      }
+    } catch (error) {
+      console.error('Error checking role:', error);
+      navigate('/');
+    }
+  };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,7 +103,7 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
@@ -91,13 +114,14 @@ const Auth = () => {
         title: "Connexion réussie !",
         description: "Bienvenue sur votre espace.",
       });
+
+      // Redirect will be handled by the auth state change listener
     } catch (error: any) {
       toast({
         title: "Erreur de connexion",
         description: error.message,
         variant: "destructive",
       });
-    } finally {
       setLoading(false);
     }
   };

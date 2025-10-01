@@ -1,13 +1,44 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Menu, User, Users, Shield, LogIn } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import collegeLogo from '@/assets/college-logo.png';
+import { supabase } from '@/integrations/supabase/client';
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    checkUserRole();
+    
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+      checkUserRole();
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const checkUserRole = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (session) {
+      setIsAuthenticated(true);
+      const { data } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', session.user.id)
+        .maybeSingle();
+      
+      setUserRole(data?.role || null);
+    } else {
+      setIsAuthenticated(false);
+      setUserRole(null);
+    }
+  };
 
   const navigation = [
     { name: 'Accueil', href: '/' },
@@ -17,11 +48,23 @@ const Header = () => {
     { name: 'Contact', href: '/contact' },
   ];
 
-  const spaces = [
-    { name: 'Espace Parents', href: '/parents', icon: Users },
-    { name: 'Espace Enseignants', href: '/teachers', icon: User },
-    { name: 'Administration', href: '/admin', icon: Shield },
-  ];
+  const getAvailableSpaces = () => {
+    const spaces = [];
+    
+    if (userRole === 'parent') {
+      spaces.push({ name: 'Espace Parents', href: '/parents', icon: Users });
+    }
+    if (userRole === 'teacher') {
+      spaces.push({ name: 'Espace Enseignants', href: '/teachers', icon: User });
+    }
+    if (userRole === 'admin') {
+      spaces.push({ name: 'Administration', href: '/admin', icon: Shield });
+    }
+    
+    return spaces;
+  };
+
+  const availableSpaces = getAvailableSpaces();
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -55,7 +98,7 @@ const Header = () => {
 
           {/* Desktop Spaces */}
           <div className="hidden lg:flex items-center space-x-2">
-            {spaces.map((space) => (
+            {isAuthenticated && availableSpaces.map((space) => (
               <Button
                 key={space.name}
                 variant="ghost"
@@ -69,12 +112,14 @@ const Header = () => {
                 </Link>
               </Button>
             ))}
-            <Button variant="default" size="sm" asChild>
-              <Link to="/auth" className="flex items-center space-x-1">
-                <LogIn className="h-4 w-4" />
-                <span>Connexion</span>
-              </Link>
-            </Button>
+            {!isAuthenticated && (
+              <Button variant="default" size="sm" asChild>
+                <Link to="/auth" className="flex items-center space-x-1">
+                  <LogIn className="h-4 w-4" />
+                  <span>Connexion</span>
+                </Link>
+              </Button>
+            )}
           </div>
 
           {/* Mobile Menu */}
@@ -111,30 +156,38 @@ const Header = () => {
                   ))}
                 </nav>
 
-                <div className="border-t pt-4">
-                  <h3 className="text-sm font-semibold text-primary mb-3 px-2">Espaces privés</h3>
-                  <div className="flex flex-col space-y-2">
-                    {spaces.map((space) => (
+                {(isAuthenticated || !isAuthenticated) && (
+                  <div className="border-t pt-4">
+                    {isAuthenticated && availableSpaces.length > 0 && (
+                      <>
+                        <h3 className="text-sm font-semibold text-primary mb-3 px-2">Espaces privés</h3>
+                        <div className="flex flex-col space-y-2">
+                          {availableSpaces.map((space) => (
+                            <Link
+                              key={space.name}
+                              to={space.href}
+                              onClick={() => setIsOpen(false)}
+                              className="flex items-center space-x-3 px-2 py-2 text-sm rounded-md transition-colors hover:bg-secondary"
+                            >
+                              <space.icon className="h-4 w-4 text-primary" />
+                              <span>{space.name}</span>
+                            </Link>
+                          ))}
+                        </div>
+                      </>
+                    )}
+                    {!isAuthenticated && (
                       <Link
-                        key={space.name}
-                        to={space.href}
+                        to="/auth"
                         onClick={() => setIsOpen(false)}
-                        className="flex items-center space-x-3 px-2 py-2 text-sm rounded-md transition-colors hover:bg-secondary"
+                        className="flex items-center space-x-3 px-2 py-2 text-sm rounded-md transition-colors bg-primary text-primary-foreground"
                       >
-                        <space.icon className="h-4 w-4 text-primary" />
-                        <span>{space.name}</span>
+                        <LogIn className="h-4 w-4" />
+                        <span>Connexion</span>
                       </Link>
-                    ))}
-                    <Link
-                      to="/auth"
-                      onClick={() => setIsOpen(false)}
-                      className="flex items-center space-x-3 px-2 py-2 text-sm rounded-md transition-colors bg-primary text-primary-foreground mt-4"
-                    >
-                      <LogIn className="h-4 w-4" />
-                      <span>Connexion</span>
-                    </Link>
+                    )}
                   </div>
-                </div>
+                )}
               </div>
             </SheetContent>
           </Sheet>
