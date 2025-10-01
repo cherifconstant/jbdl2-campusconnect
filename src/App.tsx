@@ -8,9 +8,11 @@ import About from "./pages/About";
 import News from "./pages/News";
 import Gallery from "./pages/Gallery";
 import Contact from "./pages/Contact";
-import PrivateSpace from "./pages/PrivateSpace";
 import Auth from "./pages/Auth";
+import AdminDashboard from "./pages/AdminDashboard";
 import AdminNews from "./pages/AdminNews";
+import ParentsSpace from "./pages/ParentsSpace";
+import TeachersSpace from "./pages/TeachersSpace";
 import NotFound from "./pages/NotFound";
 import PortesOuvertes from "./pages/news/PortesOuvertes";
 import ConcoursMatematiques from "./pages/news/ConcoursMatematiques";
@@ -34,9 +36,10 @@ const App = () => (
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/auth" element={<Auth />} />
-          <Route path="/admin" element={<AdminNews />} />
-          <Route path="/parents" element={<PrivateSpace type="parents" />} />
-          <Route path="/teachers" element={<PrivateSpace type="teachers" />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/news" element={<AdminNews />} />
+          <Route path="/parents" element={<ParentsSpace />} />
+          <Route path="/teachers" element={<TeachersSpace />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
