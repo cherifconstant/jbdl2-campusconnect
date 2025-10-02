@@ -1,11 +1,10 @@
-import { ReactNode, useEffect, useState } from 'react';
+import { useEffect, useState, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Session } from '@supabase/supabase-js';
-import { Button } from '@/components/ui/button';
-import { LogOut } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
-import Layout from './Layout';
+import { User } from '@supabase/supabase-js';
+import Header from './Header';
+import Footer from './Footer';
+import { Loader2 } from 'lucide-react';
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -14,19 +13,21 @@ interface AdminLayoutProps {
 
 const AdminLayout = ({ children, requiredRole = 'admin' }: AdminLayoutProps) => {
   const navigate = useNavigate();
-  const [session, setSession] = useState<Session | null>(null);
-  const [hasRole, setHasRole] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [hasAccess, setHasAccess] = useState(false);
 
   useEffect(() => {
     checkAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      if (!session) {
-        navigate('/auth');
+      if (session?.user) {
+        setUser(session.user);
+        setTimeout(() => {
+          checkRole(session.user.id);
+        }, 0);
       } else {
-        checkUserRole(session.user.id);
+        navigate('/auth');
       }
     });
 
@@ -41,12 +42,11 @@ const AdminLayout = ({ children, requiredRole = 'admin' }: AdminLayoutProps) => 
       return;
     }
 
-    setSession(session);
-    await checkUserRole(session.user.id);
+    setUser(session.user);
+    await checkRole(session.user.id);
   };
 
-  const checkUserRole = async (userId: string) => {
-    setLoading(true);
+  const checkRole = async (userId: string) => {
     try {
       const { data, error } = await supabase
         .from('user_roles')
@@ -57,66 +57,40 @@ const AdminLayout = ({ children, requiredRole = 'admin' }: AdminLayoutProps) => 
 
       if (error) throw error;
 
-      if (!data) {
-        toast({
-          title: "Accès refusé",
-          description: "Vous n'avez pas les permissions nécessaires.",
-          variant: "destructive",
-        });
+      if (data) {
+        setHasAccess(true);
+      } else {
+        setHasAccess(false);
         navigate('/');
-        return;
       }
-
-      setHasRole(true);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error checking role:', error);
-      toast({
-        title: "Erreur",
-        description: "Impossible de vérifier vos permissions.",
-        variant: "destructive",
-      });
       navigate('/');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    toast({
-      title: "Déconnexion réussie",
-      description: "À bientôt !",
-    });
-    navigate('/');
-  };
-
   if (loading) {
     return (
-      <Layout>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <p className="text-muted-foreground">Vérification des permissions...</p>
-        </div>
-      </Layout>
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
     );
   }
 
-  if (!session || !hasRole) {
+  if (!hasAccess) {
     return null;
   }
 
   return (
-    <Layout>
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">Espace Administration</h1>
-          <Button onClick={handleSignOut} variant="outline">
-            <LogOut className="mr-2 h-4 w-4" />
-            Déconnexion
-          </Button>
-        </div>
+    <div className="min-h-screen flex flex-col">
+      <Header />
+      <main className="flex-1 container mx-auto px-4 py-8">
         {children}
-      </div>
-    </Layout>
+      </main>
+      <Footer />
+    </div>
   );
 };
 
