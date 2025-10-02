@@ -256,6 +256,18 @@ const AdminDashboard = () => {
 
               <Card>
                 <CardHeader>
+                  <CardTitle>Gestion de la galerie</CardTitle>
+                  <CardDescription>Gérer les images de la galerie</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button asChild className="w-full">
+                    <Link to="/admin/gallery">Gérer la galerie</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
                   <CardTitle>Messages de contact</CardTitle>
                   <CardDescription>Consulter les messages reçus</CardDescription>
                 </CardHeader>

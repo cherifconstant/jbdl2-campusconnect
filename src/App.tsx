@@ -11,6 +11,7 @@ import Contact from "./pages/Contact";
 import Auth from "./pages/Auth";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminNews from "./pages/AdminNews";
+import AdminGallery from "./pages/AdminGallery";
 import ParentsSpace from "./pages/ParentsSpace";
 import TeachersSpace from "./pages/TeachersSpace";
 import NotFound from "./pages/NotFound";
@@ -38,6 +39,7 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/news" element={<AdminNews />} />
+          <Route path="/admin/gallery" element={<AdminGallery />} />
           <Route path="/parents" element={<ParentsSpace />} />
           <Route path="/teachers" element={<TeachersSpace />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

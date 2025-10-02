@@ -1,76 +1,50 @@
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Calendar, Clock, ArrowRight, Users, Award, BookOpen } from 'lucide-react';
+import { Calendar, Clock, ArrowRight, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Layout from '@/components/Layout';
 
+interface NewsItem {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  content: string;
+  image_url: string | null;
+  published: boolean;
+  created_at: string;
+  published_at: string | null;
+}
+
 const News = () => {
-  const featuredNews = {
-    title: 'Journée Portes Ouvertes - 15 Mars 2024',
-    date: '10 Mars 2024',
-    category: 'Événement',
-    excerpt: 'Venez découvrir notre établissement, rencontrer l\'équipe pédagogique et visiter nos installations modernes. Une occasion unique de découvrir notre projet éducatif.',
-    image: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&h=400&fit=crop',
-    featured: true
+  const [news, setNews] = useState<NewsItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchNews();
+  }, []);
+
+  const fetchNews = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('news')
+        .select('*')
+        .eq('published', true)
+        .order('published_at', { ascending: false });
+
+      if (error) throw error;
+      setNews(data || []);
+    } catch (error) {
+      console.error('Error fetching news:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const newsArticles = [
-    {
-      title: 'Félicitations aux élèves lauréats du concours de mathématiques',
-      date: '8 Mars 2024',
-      category: 'Actualité',
-      excerpt: 'Nos élèves de 3ème se sont distingués au concours Kangourou des mathématiques avec 3 prix départementaux.',
-      readTime: '3 min',
-      icon: Award,
-      link: '/news/concours-matematiques'
-    },
-    {
-      title: 'Nouvelle option théâtre dès la rentrée 2024',
-      date: '5 Mars 2024',
-      category: 'Pédagogie',
-      excerpt: 'L\'établissement propose une nouvelle option théâtre pour développer la créativité et l\'expression orale des élèves.',
-      readTime: '2 min',
-      icon: BookOpen,
-      link: '/news/option-theatre'
-    },
-    {
-      title: 'Séjour linguistique en Angleterre - Inscriptions ouvertes',
-      date: '1 Mars 2024',
-      category: 'Voyage',
-      excerpt: 'Les inscriptions pour le séjour linguistique en Angleterre sont ouvertes pour les élèves de 4ème et 3ème.',
-      readTime: '4 min',
-      icon: Users,
-      link: '#'
-    },
-    {
-      title: 'Remise des diplômes du Brevet 2023',
-      date: '25 Février 2024',
-      category: 'Événement',
-      excerpt: 'Cérémonie de remise des diplômes du Brevet National des Collèges promotion 2023.',
-      readTime: '2 min',
-      icon: Award,
-      link: '#'
-    },
-    {
-      title: 'Projet environnemental : Création d\'un jardin pédagogique',
-      date: '20 Février 2024',
-      category: 'Projet',
-      excerpt: 'Les élèves de 6ème participent à la création d\'un jardin pédagogique dans la cour de récréation.',
-      readTime: '5 min',
-      icon: BookOpen,
-      link: '#'
-    },
-    {
-      title: 'Conférence sur l\'orientation en classe de 3ème',
-      date: '15 Février 2024',
-      category: 'Orientation',
-      excerpt: 'Soirée d\'information destinée aux parents et élèves de 3ème sur les choix d\'orientation post-collège.',
-      readTime: '3 min',
-      icon: Users,
-      link: '#'
-    }
-  ];
+  const featuredNews = news[0];
 
   const categories = ['Tous', 'Événement', 'Actualité', 'Pédagogie', 'Voyage', 'Projet', 'Orientation'];
 
@@ -119,96 +93,102 @@ const News = () => {
       </section>
 
       {/* Featured News */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <Card className="shadow-elegant border-0 overflow-hidden">
-            <div className="grid grid-cols-1 lg:grid-cols-2">
-              <div className="relative h-64 lg:h-auto">
-                <img 
-                  src={featuredNews.image} 
-                  alt={featuredNews.title}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute top-4 left-4">
-                  <Badge className={getCategoryColor(featuredNews.category)}>
-                    {featuredNews.category}
-                  </Badge>
+      {loading ? (
+        <section className="py-16">
+          <div className="container mx-auto px-4 text-center">
+            <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
+          </div>
+        </section>
+      ) : featuredNews ? (
+        <section className="py-16">
+          <div className="container mx-auto px-4">
+            <Card className="shadow-elegant border-0 overflow-hidden">
+              <div className="grid grid-cols-1 lg:grid-cols-2">
+                <div className="relative h-64 lg:h-auto">
+                  <img 
+                    src={featuredNews.image_url || 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&h=400&fit=crop'} 
+                    alt={featuredNews.title}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute top-4 left-4">
+                    <Badge className="bg-primary text-primary-foreground">
+                      À la une
+                    </Badge>
+                  </div>
+                </div>
+                <div className="p-8 lg:p-12">
+                  <div className="flex items-center text-sm text-muted-foreground mb-4">
+                    <Calendar className="h-4 w-4 mr-2" />
+                    {new Date(featuredNews.published_at || featuredNews.created_at).toLocaleDateString('fr-FR')}
+                  </div>
+                  <h2 className="text-3xl font-bold text-primary mb-4">{featuredNews.title}</h2>
+                  <p className="text-muted-foreground mb-6 leading-relaxed">{featuredNews.excerpt}</p>
+                  <Link to={`/news/${featuredNews.slug}`}>
+                    <Button className="group">
+                      Lire la suite
+                      <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                    </Button>
+                  </Link>
                 </div>
               </div>
-              <div className="p-8 lg:p-12">
-                <div className="flex items-center text-sm text-muted-foreground mb-4">
-                  <Calendar className="h-4 w-4 mr-2" />
-                  {featuredNews.date}
-                </div>
-                <h2 className="text-3xl font-bold text-primary mb-4">{featuredNews.title}</h2>
-                <p className="text-muted-foreground mb-6 leading-relaxed">{featuredNews.excerpt}</p>
-                <Link to="/news/portes-ouvertes">
-                  <Button className="group">
-                    Lire la suite
-                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </Card>
-        </div>
-      </section>
+            </Card>
+          </div>
+        </section>
+      ) : null}
 
       {/* News Grid */}
       <section className="py-16 bg-gradient-subtle">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-primary text-center mb-12">Toutes nos actualités</h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {newsArticles.map((article, index) => (
-              <Card key={index} className="shadow-card border-0 hover:shadow-elegant transition-shadow cursor-pointer group">
-                <CardHeader>
-                  <div className="flex items-center justify-between mb-3">
-                    <Badge className={getCategoryColor(article.category)} variant="secondary">
-                      {article.category}
-                    </Badge>
-                    <div className="flex items-center text-xs text-muted-foreground">
-                      <Clock className="h-3 w-3 mr-1" />
-                      {article.readTime}
+          {loading ? (
+            <div className="flex justify-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : news.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {news.slice(1).map((article) => (
+                <Card key={article.id} className="shadow-card border-0 hover:shadow-elegant transition-shadow cursor-pointer group">
+                  {article.image_url && (
+                    <div className="relative h-48 overflow-hidden">
+                      <img
+                        src={article.image_url}
+                        alt={article.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                      />
                     </div>
-                  </div>
-                  
-                  <div className="flex items-center text-sm text-muted-foreground mb-3">
-                    <Calendar className="h-4 w-4 mr-2" />
-                    {article.date}
-                  </div>
-                  
-                  <CardTitle className="text-lg group-hover:text-primary transition-colors">
-                    {article.title}
-                  </CardTitle>
-                </CardHeader>
-                
-                <CardContent>
-                  <p className="text-muted-foreground text-sm mb-4 leading-relaxed">
-                    {article.excerpt}
-                  </p>
-                  
-                  <div className="flex items-center justify-between">
-                    <div className="w-10 h-10 bg-accent/10 rounded-full flex items-center justify-center">
-                      <article.icon className="h-5 w-5 text-accent" />
+                  )}
+                  <CardHeader>
+                    <div className="flex items-center text-sm text-muted-foreground mb-3">
+                      <Calendar className="h-4 w-4 mr-2" />
+                      {new Date(article.published_at || article.created_at).toLocaleDateString('fr-FR')}
                     </div>
-                    <Link to={article.link || '#'}>
-                      <Button variant="ghost" size="sm" className="group">
-                        Lire
-                        <ArrowRight className="ml-2 h-3 w-3 group-hover:translate-x-1 transition-transform" />
-                      </Button>
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-          
-          <div className="text-center mt-12">
-            <Button variant="outline" size="lg">
-              Charger plus d'actualités
-            </Button>
-          </div>
+                    
+                    <CardTitle className="text-lg group-hover:text-primary transition-colors">
+                      {article.title}
+                    </CardTitle>
+                  </CardHeader>
+                  
+                  <CardContent>
+                    <p className="text-muted-foreground text-sm mb-4 leading-relaxed line-clamp-3">
+                      {article.excerpt}
+                    </p>
+                    
+                    <div className="flex justify-end">
+                      <Link to={`/news/${article.slug}`}>
+                        <Button variant="ghost" size="sm" className="group">
+                          Lire
+                          <ArrowRight className="ml-2 h-3 w-3 group-hover:translate-x-1 transition-transform" />
+                        </Button>
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <p className="text-center text-muted-foreground py-8">Aucune actualité disponible</p>
+          )}
         </div>
       </section>
 
