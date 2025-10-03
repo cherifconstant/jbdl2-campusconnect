@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { Link } from 'react-router-dom';
 import Autoplay from "embla-carousel-autoplay";
+import { useState, useEffect } from 'react';
 import { 
   GraduationCap, 
   Users, 
@@ -14,18 +15,49 @@ import {
   Shield,
   ArrowRight,
   Star,
-  Camera
+  Camera,
+  Loader2
 } from 'lucide-react';
 import heroImage from '@/assets/hero-college.jpg';
-import salleClasse1 from '@/assets/gallery/salle-classe-1.jpg';
-import salleClasse2 from '@/assets/gallery/salle-classe-2.jpg';
-import laboratoire from '@/assets/gallery/laboratoire.jpg';
-import bibliotheque from '@/assets/gallery/bibliotheque.jpg';
-import cour from '@/assets/gallery/cour.jpg';
-import evenement1 from '@/assets/gallery/evenement-1.jpg';
 import Layout from '@/components/Layout';
+import { supabase } from '@/integrations/supabase/client';
+
+interface GalleryImage {
+  id: string;
+  title: string;
+  category: string;
+  description: string | null;
+  image_url: string;
+  is_main_image: boolean;
+  display_order: number;
+}
 
 const Home = () => {
+  const [carouselImages, setCarouselImages] = useState<GalleryImage[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchGalleryImages();
+  }, []);
+
+  const fetchGalleryImages = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('gallery_images')
+        .select('*')
+        .eq('is_main_image', true)
+        .order('display_order', { ascending: true })
+        .limit(6);
+
+      if (error) throw error;
+      setCarouselImages(data || []);
+    } catch (error) {
+      console.error('Error fetching gallery images:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const quickAccess = [
     {
       title: 'Espace Élèves',
@@ -75,38 +107,6 @@ const Home = () => {
     },
   ];
 
-  const carouselImages = [
-    {
-      src: salleClasse1,
-      title: "Salles de classe modernes",
-      description: "Environnement d'apprentissage équipé des dernières technologies"
-    },
-    {
-      src: laboratoire,
-      title: "Laboratoire de sciences",
-      description: "Expériences pratiques pour développer l'esprit scientifique"
-    },
-    {
-      src: bibliotheque,
-      title: "Bibliothèque spacieuse",
-      description: "Plus de 5000 ouvrages pour enrichir les connaissances"
-    },
-    {
-      src: cour,
-      title: "Espaces de détente",
-      description: "Moments de convivialité et d'épanouissement personnel"
-    },
-    {
-      src: evenement1,
-      title: "Événements enrichissants",
-      description: "Vie scolaire dynamique avec de nombreuses activités"
-    },
-    {
-      src: salleClasse2,
-      title: "Pédagogie spécialisée",
-      description: "Salles adaptées à chaque matière pour un apprentissage optimal"
-    }
-  ];
 
   const recentNews = [
     {
@@ -176,46 +176,57 @@ const Home = () => {
           </div>
           
           <div className="max-w-5xl mx-auto">
-            <Carousel 
-              className="w-full"
-              plugins={[
-                Autoplay({
-                  delay: 4000,
-                  stopOnInteraction: true,
-                }),
-              ]}
-              opts={{
-                align: "start",
-                loop: true,
-              }}
-            >
-              <CarouselContent className="-ml-2 md:-ml-4">
-                {carouselImages.map((image, index) => (
-                  <CarouselItem key={index} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
-                    <Card className="group overflow-hidden border-0 shadow-card hover:shadow-elegant transition-all duration-300 hover:-translate-y-1">
-                      <div className="relative overflow-hidden">
-                        <img
-                          src={image.src}
-                          alt={image.title}
-                          className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      </div>
-                      <CardContent className="p-4">
-                        <h3 className="font-semibold text-lg mb-2 text-primary group-hover:text-accent transition-colors">
-                          {image.title}
-                        </h3>
-                        <p className="text-muted-foreground text-sm">
-                          {image.description}
-                        </p>
-                      </CardContent>
-                    </Card>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious className="hidden sm:flex" />
-              <CarouselNext className="hidden sm:flex" />
-            </Carousel>
+            {loading ? (
+              <div className="flex justify-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : carouselImages.length > 0 ? (
+              <Carousel 
+                className="w-full"
+                plugins={[
+                  Autoplay({
+                    delay: 4000,
+                    stopOnInteraction: true,
+                  }),
+                ]}
+                opts={{
+                  align: "start",
+                  loop: true,
+                }}
+              >
+                <CarouselContent className="-ml-2 md:-ml-4">
+                  {carouselImages.map((image) => (
+                    <CarouselItem key={image.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
+                      <Card className="group overflow-hidden border-0 shadow-card hover:shadow-elegant transition-all duration-300 hover:-translate-y-1">
+                        <div className="relative overflow-hidden">
+                          <img
+                            src={image.image_url}
+                            alt={image.title}
+                            className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        </div>
+                        <CardContent className="p-4">
+                          <h3 className="font-semibold text-lg mb-2 text-primary group-hover:text-accent transition-colors">
+                            {image.title}
+                          </h3>
+                          <p className="text-muted-foreground text-sm">
+                            {image.description}
+                          </p>
+                        </CardContent>
+                      </Card>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious className="hidden sm:flex" />
+                <CarouselNext className="hidden sm:flex" />
+              </Carousel>
+            ) : (
+              <div className="text-center py-12">
+                <Camera className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">Les images seront bientôt disponibles.</p>
+              </div>
+            )}
           </div>
           
           <div className="text-center mt-8">
