@@ -48,23 +48,11 @@ const Header = () => {
     { name: 'Contact', href: '/contact' },
   ];
 
-  const getAvailableSpaces = () => {
-    const spaces = [];
-    
-    if (userRole === 'parent') {
-      spaces.push({ name: 'Espace Parents', href: '/parents', icon: Users });
-    }
-    if (userRole === 'teacher') {
-      spaces.push({ name: 'Espace Enseignants', href: '/teachers', icon: User });
-    }
-    if (userRole === 'admin') {
-      spaces.push({ name: 'Administration', href: '/admin', icon: Shield });
-    }
-    
-    return spaces;
-  };
-
-  const availableSpaces = getAvailableSpaces();
+  const allSpaces = [
+    { name: 'Espace Parents', href: '/parents', icon: Users },
+    { name: 'Espace Enseignants', href: '/teachers', icon: User },
+    { name: 'Administration', href: '/admin', icon: Shield },
+  ];
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -103,7 +91,7 @@ const Header = () => {
 
           {/* Desktop Spaces */}
           <div className="hidden lg:flex items-center space-x-2">
-            {isAuthenticated && availableSpaces.map((space) => (
+            {allSpaces.map((space) => (
               <Button
                 key={space.name}
                 variant="ghost"
@@ -172,46 +160,42 @@ const Header = () => {
                 </nav>
 
                 <div className="border-t pt-4">
-                  {isAuthenticated ? (
-                    <>
-                      {availableSpaces.length > 0 && (
-                        <>
-                          <h3 className="text-sm font-semibold text-primary mb-3 px-2">Espaces privés</h3>
-                          <div className="flex flex-col space-y-2">
-                            {availableSpaces.map((space) => (
-                              <Link
-                                key={space.name}
-                                to={space.href}
-                                onClick={() => setIsOpen(false)}
-                                className="flex items-center space-x-3 px-2 py-2 text-sm rounded-md transition-colors hover:bg-secondary"
-                              >
-                                <space.icon className="h-4 w-4 text-primary" />
-                                <span>{space.name}</span>
-                              </Link>
-                            ))}
-                          </div>
-                        </>
-                      )}
-                      <Button
-                        variant="outline"
-                        className="w-full mt-4 flex items-center justify-center space-x-2"
-                        onClick={() => {
-                          handleLogout();
-                          setIsOpen(false);
-                        }}
+                  <h3 className="text-sm font-semibold text-primary mb-3 px-2">Espaces privés</h3>
+                  <div className="flex flex-col space-y-2 mb-4">
+                    {allSpaces.map((space) => (
+                      <Link
+                        key={space.name}
+                        to={space.href}
+                        onClick={() => setIsOpen(false)}
+                        className="flex items-center space-x-3 px-2 py-2 text-sm rounded-md transition-colors hover:bg-secondary"
                       >
-                        <LogOut className="h-4 w-4" />
-                        <span>Déconnexion</span>
-                      </Button>
-                    </>
+                        <space.icon className="h-4 w-4 text-primary" />
+                        <span>{space.name}</span>
+                      </Link>
+                    ))}
+                  </div>
+                  
+                  {isAuthenticated ? (
+                    <Button
+                      variant="outline"
+                      className="w-full flex items-center justify-center space-x-2"
+                      onClick={() => {
+                        handleLogout();
+                        setIsOpen(false);
+                      }}
+                    >
+                      <LogOut className="h-4 w-4" />
+                      <span>Déconnexion</span>
+                    </Button>
                   ) : (
                     <Link
                       to="/auth"
                       onClick={() => setIsOpen(false)}
-                      className="flex items-center space-x-3 px-2 py-2 text-sm rounded-md transition-colors bg-primary text-primary-foreground"
                     >
-                      <LogIn className="h-4 w-4" />
-                      <span>Connexion</span>
+                      <Button className="w-full flex items-center justify-center space-x-2">
+                        <LogIn className="h-4 w-4" />
+                        <span>Connexion</span>
+                      </Button>
                     </Link>
                   )}
                 </div>
