@@ -32,12 +32,25 @@ interface GalleryImage {
   display_order: number;
 }
 
+interface NewsItem {
+  id: string;
+  title: string;
+  excerpt: string | null;
+  slug: string;
+  image_url: string | null;
+  published_at: string | null;
+  created_at: string;
+}
+
 const Home = () => {
   const [carouselImages, setCarouselImages] = useState<GalleryImage[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [recentNews, setRecentNews] = useState<NewsItem[]>([]);
+  const [loadingGallery, setLoadingGallery] = useState(true);
+  const [loadingNews, setLoadingNews] = useState(true);
 
   useEffect(() => {
     fetchGalleryImages();
+    fetchRecentNews();
   }, []);
 
   const fetchGalleryImages = async () => {
@@ -54,8 +67,36 @@ const Home = () => {
     } catch (error) {
       console.error('Error fetching gallery images:', error);
     } finally {
-      setLoading(false);
+      setLoadingGallery(false);
     }
+  };
+
+  const fetchRecentNews = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('news')
+        .select('id, title, excerpt, slug, image_url, published_at, created_at')
+        .eq('published', true)
+        .order('published_at', { ascending: false })
+        .limit(3);
+
+      if (error) throw error;
+      setRecentNews(data || []);
+    } catch (error) {
+      console.error('Error fetching recent news:', error);
+    } finally {
+      setLoadingNews(false);
+    }
+  };
+
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('fr-FR', { 
+      day: 'numeric', 
+      month: 'long', 
+      year: 'numeric' 
+    });
   };
 
   const quickAccess = [
@@ -104,25 +145,6 @@ const Home = () => {
       title: 'Accompagnement personnalisé',
       description: 'Suivi individuel de chaque élève',
       icon: Star,
-    },
-  ];
-
-
-  const recentNews = [
-    {
-      title: 'Journée Portes Ouvertes - 15 Mars 2024',
-      date: '10 Mars 2024',
-      category: 'Événement',
-    },
-    {
-      title: 'Félicitations aux élèves lauréats du concours de mathématiques',
-      date: '8 Mars 2024',
-      category: 'Actualité',
-    },
-    {
-      title: 'Nouvelle option théâtre dès la rentrée 2024',
-      date: '5 Mars 2024',
-      category: 'Pédagogie',
     },
   ];
 
@@ -176,7 +198,7 @@ const Home = () => {
           </div>
           
           <div className="max-w-5xl mx-auto">
-            {loading ? (
+            {loadingGallery ? (
               <div className="flex justify-center py-12">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
@@ -305,24 +327,56 @@ const Home = () => {
             </Button>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {recentNews.map((news, index) => (
-              <Card key={index} className="shadow-card border-0 hover:shadow-elegant transition-shadow">
-                <CardHeader>
-                  <div className="flex items-center justify-between mb-2">
-                    <Badge variant="secondary" className="text-xs">
-                      {news.category}
-                    </Badge>
-                    <span className="text-xs text-muted-foreground flex items-center">
-                      <Calendar className="h-3 w-3 mr-1" />
-                      {news.date}
-                    </span>
-                  </div>
-                  <CardTitle className="text-lg leading-tight">{news.title}</CardTitle>
-                </CardHeader>
-              </Card>
-            ))}
-          </div>
+          {loadingNews ? (
+            <div className="flex justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : recentNews.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {recentNews.map((news) => (
+                <Link key={news.id} to={`/news/${news.slug}`}>
+                  <Card className="shadow-card border-0 hover:shadow-elegant transition-all duration-300 hover:-translate-y-1 cursor-pointer h-full">
+                    {news.image_url && (
+                      <div className="relative overflow-hidden h-48">
+                        <img
+                          src={news.image_url}
+                          alt={news.title}
+                          className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                        />
+                      </div>
+                    )}
+                    <CardHeader>
+                      <div className="flex items-center justify-between mb-2">
+                        <Badge variant="secondary" className="text-xs">
+                          Actualité
+                        </Badge>
+                        <span className="text-xs text-muted-foreground flex items-center">
+                          <Calendar className="h-3 w-3 mr-1" />
+                          {formatDate(news.published_at || news.created_at)}
+                        </span>
+                      </div>
+                      <CardTitle className="text-lg leading-tight line-clamp-2">{news.title}</CardTitle>
+                      {news.excerpt && (
+                        <CardDescription className="line-clamp-2 mt-2">
+                          {news.excerpt}
+                        </CardDescription>
+                      )}
+                    </CardHeader>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <Calendar className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-muted-foreground mb-2">
+                Aucune actualité disponible
+              </h3>
+              <p className="text-muted-foreground">
+                Les actualités seront bientôt ajoutées.
+              </p>
+            </div>
+          )}
         </div>
       </section>
     </Layout>
