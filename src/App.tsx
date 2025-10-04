@@ -10,6 +10,9 @@ import Gallery from "./pages/Gallery";
 import Contact from "./pages/Contact";
 import Auth from "./pages/Auth";
 import TeacherSignup from "./pages/TeacherSignup";
+import ParentsLogin from "./pages/ParentsLogin";
+import TeachersLogin from "./pages/TeachersLogin";
+import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminNews from "./pages/AdminNews";
 import AdminGallery from "./pages/AdminGallery";
@@ -39,6 +42,9 @@ const App = () => (
           <Route path="/contact" element={<Contact />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/teacher-signup" element={<TeacherSignup />} />
+          <Route path="/parents/login" element={<ParentsLogin />} />
+          <Route path="/teachers/login" element={<TeachersLogin />} />
+          <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/news" element={<AdminNews />} />
           <Route path="/admin/gallery" element={<AdminGallery />} />

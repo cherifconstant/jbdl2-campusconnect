@@ -17,6 +17,19 @@ const AdminLayout = ({ children, requiredRole = 'admin' }: AdminLayoutProps) => 
   const [loading, setLoading] = useState(true);
   const [hasAccess, setHasAccess] = useState(false);
 
+  const getLoginPath = () => {
+    switch (requiredRole) {
+      case 'parent':
+        return '/parents/login';
+      case 'teacher':
+        return '/teachers/login';
+      case 'admin':
+        return '/admin/login';
+      default:
+        return '/auth';
+    }
+  };
+
   useEffect(() => {
     checkAuth();
 
@@ -27,7 +40,7 @@ const AdminLayout = ({ children, requiredRole = 'admin' }: AdminLayoutProps) => 
           checkRole(session.user.id);
         }, 0);
       } else {
-        navigate('/auth');
+        navigate(getLoginPath());
       }
     });
 
@@ -38,7 +51,7 @@ const AdminLayout = ({ children, requiredRole = 'admin' }: AdminLayoutProps) => 
     const { data: { session } } = await supabase.auth.getSession();
     
     if (!session) {
-      navigate('/auth');
+      navigate(getLoginPath());
       return;
     }
 

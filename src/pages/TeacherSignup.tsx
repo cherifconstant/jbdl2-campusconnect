@@ -177,7 +177,7 @@ export default function TeacherSignup() {
         description: "Votre compte enseignant a été créé avec succès. Veuillez vérifier votre email.",
       });
 
-      navigate("/auth");
+      navigate("/teachers/login");
     } catch (error: any) {
       console.error("Signup error:", error);
       toast({
@@ -195,7 +195,7 @@ export default function TeacherSignup() {
       <Card className="w-full max-w-2xl">
         <CardHeader>
           <div className="flex items-center gap-2 mb-2">
-            <Link to="/auth">
+            <Link to="/teachers/login">
               <Button variant="ghost" size="icon">
                 <ArrowLeft className="h-4 w-4" />
               </Button>

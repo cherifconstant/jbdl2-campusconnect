@@ -49,9 +49,9 @@ const Header = () => {
   ];
 
   const allSpaces = [
-    { name: 'Espace Parents', href: '/parents', icon: Users },
-    { name: 'Espace Enseignants', href: '/teachers', icon: User },
-    { name: 'Administration', href: '/admin', icon: Shield },
+    { name: 'Espace Parents', href: '/parents/login', icon: Users },
+    { name: 'Espace Enseignants', href: '/teachers/login', icon: User },
+    { name: 'Administration', href: '/admin/login', icon: Shield },
   ];
 
   const handleLogout = async () => {
