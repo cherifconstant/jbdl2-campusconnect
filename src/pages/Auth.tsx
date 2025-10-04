@@ -139,11 +139,11 @@ const Auth = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="login" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="login">Connexion</TabsTrigger>
-              <TabsTrigger value="signup">Inscription</TabsTrigger>
-            </TabsList>
+            <Tabs defaultValue="login" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="login">Connexion</TabsTrigger>
+                <TabsTrigger value="signup">Inscription Simple</TabsTrigger>
+              </TabsList>
 
             <TabsContent value="login">
               <form onSubmit={handleLogin} className="space-y-4">
@@ -236,9 +236,20 @@ const Auth = () => {
                   {isLoading ? "Inscription..." : "S'inscrire"}
                 </Button>
               </form>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
+              </TabsContent>
+            </Tabs>
+            
+            <div className="mt-6 text-center border-t pt-4">
+              <p className="text-sm text-muted-foreground mb-2">
+                Vous êtes enseignant ?
+              </p>
+              <Link to="/teacher-signup">
+                <Button variant="outline" className="w-full">
+                  Inscription Enseignant Complète
+                </Button>
+              </Link>
+            </div>
+          </CardContent>
         </Card>
       </div>
     </div>

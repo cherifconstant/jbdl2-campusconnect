@@ -9,6 +9,7 @@ import News from "./pages/News";
 import Gallery from "./pages/Gallery";
 import Contact from "./pages/Contact";
 import Auth from "./pages/Auth";
+import TeacherSignup from "./pages/TeacherSignup";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminNews from "./pages/AdminNews";
 import AdminGallery from "./pages/AdminGallery";
@@ -37,6 +38,7 @@ const App = () => (
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/teacher-signup" element={<TeacherSignup />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/news" element={<AdminNews />} />
           <Route path="/admin/gallery" element={<AdminGallery />} />

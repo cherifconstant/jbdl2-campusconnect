@@ -8,30 +8,63 @@ import AdminLayout from '@/components/AdminLayout';
 
 const TeachersSpace = () => {
   const [profile, setProfile] = useState<any>(null);
+  const [teacherClasses, setTeacherClasses] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchProfile();
+    fetchTeacherClasses();
   }, []);
 
   const fetchProfile = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
       const { data } = await supabase
-        .from('profiles')
+        .from('teacher_profiles')
         .select('*')
-        .eq('id', user.id)
+        .eq('user_id', user.id)
         .single();
       setProfile(data);
     }
   };
 
-  // Données mockup
-  const classes = [
-    { name: '6ème A', students: 28, subject: 'Mathématiques' },
-    { name: '6ème B', students: 25, subject: 'Mathématiques' },
-    { name: '5ème A', students: 30, subject: 'Mathématiques' },
-  ];
+  const fetchTeacherClasses = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        // Get teacher profile first
+        const { data: teacherProfile } = await supabase
+          .from('teacher_profiles')
+          .select('id')
+          .eq('user_id', user.id)
+          .single();
 
+        if (teacherProfile) {
+          // Get assigned classes
+          const { data: classData } = await supabase
+            .from('teacher_classes')
+            .select(`
+              id,
+              classes (
+                id,
+                name,
+                level,
+                description
+              )
+            `)
+            .eq('teacher_id', teacherProfile.id);
+
+          setTeacherClasses(classData || []);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching classes:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Données mockup
   const assignments = [
     { title: 'Devoir sur les fractions', class: '6ème A', dueDate: '2025-02-10', submitted: 20, total: 28 },
     { title: 'Contrôle géométrie', class: '6ème B', dueDate: '2025-02-12', submitted: 15, total: 25 },
@@ -63,8 +96,8 @@ const TeachersSpace = () => {
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{classes.length}</div>
-              <p className="text-xs text-muted-foreground">83 élèves au total</p>
+              <div className="text-2xl font-bold">{teacherClasses.length}</div>
+              <p className="text-xs text-muted-foreground">Classes assignées</p>
             </CardContent>
           </Card>
 
@@ -118,28 +151,35 @@ const TeachersSpace = () => {
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {classes.map((cls, index) => (
-                <Card key={index} className="hover:shadow-lg transition-shadow cursor-pointer">
-                  <CardHeader>
-                    <CardTitle className="flex items-center justify-between">
-                      {cls.name}
-                      <Users className="h-5 w-5 text-muted-foreground" />
-                    </CardTitle>
-                    <CardDescription>{cls.subject}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Élèves:</span>
-                        <span className="font-medium">{cls.students}</span>
+              {loading ? (
+                <p className="col-span-full text-center text-muted-foreground py-8">Chargement...</p>
+              ) : teacherClasses.length === 0 ? (
+                <p className="col-span-full text-center text-muted-foreground py-8">
+                  Aucune classe assignée pour le moment
+                </p>
+              ) : (
+                teacherClasses.map((item, index) => (
+                  <Card key={index} className="hover:shadow-lg transition-shadow cursor-pointer">
+                    <CardHeader>
+                      <CardTitle className="flex items-center justify-between">
+                        {item.classes.name}
+                        <Users className="h-5 w-5 text-muted-foreground" />
+                      </CardTitle>
+                      <CardDescription>{item.classes.level}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        {item.classes.description && (
+                          <p className="text-sm text-muted-foreground">{item.classes.description}</p>
+                        )}
+                        <Button className="w-full mt-4" size="sm">
+                          Voir les détails
+                        </Button>
                       </div>
-                      <Button className="w-full mt-4" size="sm">
-                        Voir les détails
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    </CardContent>
+                  </Card>
+                ))
+              )}
             </div>
           </TabsContent>
 
