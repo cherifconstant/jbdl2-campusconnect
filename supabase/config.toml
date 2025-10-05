@@ -1,1 +1,4 @@
 project_id = "rbwzazycfgmnkqojkgnm"
+
+[functions.jean-baptiste-chat]
+verify_jwt = false

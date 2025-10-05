@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Users, ClipboardList, Calendar, FileText, Plus } from 'lucide-react';
+import { BookOpen, Users, ClipboardList, Calendar, FileText, Plus, MessageSquare, Clock } from 'lucide-react';
 import AdminLayout from '@/components/AdminLayout';
 
 const TeachersSpace = () => {
+  const navigate = useNavigate();
   const [profile, setProfile] = useState<any>(null);
   const [teacherClasses, setTeacherClasses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);

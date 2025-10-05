@@ -18,6 +18,11 @@ import AdminNews from "./pages/AdminNews";
 import AdminGallery from "./pages/AdminGallery";
 import ParentsSpace from "./pages/ParentsSpace";
 import TeachersSpace from "./pages/TeachersSpace";
+import TeachersGrades from "./pages/TeachersGrades";
+import Calendar from "./pages/Calendar";
+import Messaging from "./pages/Messaging";
+import Homework from "./pages/Homework";
+import Schedule from "./pages/Schedule";
 import NotFound from "./pages/NotFound";
 import PortesOuvertes from "./pages/news/PortesOuvertes";
 import ConcoursMatematiques from "./pages/news/ConcoursMatematiques";
@@ -50,6 +55,11 @@ const App = () => (
           <Route path="/admin/gallery" element={<AdminGallery />} />
           <Route path="/parents" element={<ParentsSpace />} />
           <Route path="/teachers" element={<TeachersSpace />} />
+          <Route path="/teachers/grades" element={<TeachersGrades />} />
+          <Route path="/calendar" element={<Calendar />} />
+          <Route path="/messaging" element={<Messaging />} />
+          <Route path="/homework" element={<Homework />} />
+          <Route path="/schedule" element={<Schedule />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
