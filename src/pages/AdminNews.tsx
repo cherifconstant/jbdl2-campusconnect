@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { toast } from '@/hooks/use-toast';
-import { Plus, Pencil, Trash2, Eye } from 'lucide-react';
+import { Plus, Pencil, Trash2, Eye, Loader2, Image as ImageIcon } from 'lucide-react';
 import AdminLayout from '@/components/AdminLayout';
 
 interface NewsItem {
@@ -37,6 +37,8 @@ const AdminNews = () => {
     image_url: '',
     published: false,
   });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     fetchNews();
@@ -62,19 +64,46 @@ const AdminNews = () => {
     }
   };
 
+  const uploadFile = async (file: File): Promise<string> => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+    const filePath = fileName;
+
+    const { error: uploadError } = await supabase.storage
+      .from('news-images')
+      .upload(filePath, file);
+
+    if (uploadError) throw uploadError;
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('news-images')
+      .getPublicUrl(filePath);
+
+    return publicUrl;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setUploading(true);
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Non authentifié');
+
+      let imageUrl = formData.image_url;
+
+      // Si un nouveau fichier est sélectionné, l'uploader
+      if (selectedFile) {
+        imageUrl = await uploadFile(selectedFile);
+      }
 
       if (editingNews) {
         const { error } = await supabase
           .from('news')
           .update({
             ...formData,
+            image_url: imageUrl || null,
             updated_at: new Date().toISOString(),
           })
           .eq('id', editingNews.id);
@@ -86,6 +115,7 @@ const AdminNews = () => {
           .from('news')
           .insert([{
             ...formData,
+            image_url: imageUrl || null,
             author_id: user.id,
           }]);
 
@@ -104,6 +134,7 @@ const AdminNews = () => {
       });
     } finally {
       setLoading(false);
+      setUploading(false);
     }
   };
 
@@ -151,6 +182,7 @@ const AdminNews = () => {
       published: false,
     });
     setEditingNews(null);
+    setSelectedFile(null);
   };
 
   const generateSlug = (title: string) => {
@@ -234,13 +266,35 @@ const AdminNews = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="image_url">URL de l'image</Label>
-                    <Input
-                      id="image_url"
-                      value={formData.image_url}
-                      onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                      placeholder="https://..."
-                    />
+                    <Label htmlFor="file">Image</Label>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        id="file"
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setSelectedFile(file);
+                            toast({
+                              title: "Fichier sélectionné",
+                              description: file.name,
+                            });
+                          }
+                        }}
+                      />
+                      <ImageIcon className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                    {formData.image_url && !selectedFile && (
+                      <p className="text-xs text-muted-foreground">
+                        Image actuelle: {formData.image_url.split('/').pop()}
+                      </p>
+                    )}
+                    {selectedFile && (
+                      <p className="text-xs text-green-600">
+                        Nouvelle image: {selectedFile.name}
+                      </p>
+                    )}
                   </div>
                   <div className="flex items-center space-x-2">
                     <Switch
@@ -254,8 +308,17 @@ const AdminNews = () => {
                     <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                       Annuler
                     </Button>
-                    <Button type="submit" disabled={loading}>
-                      {loading ? 'Enregistrement...' : 'Enregistrer'}
+                    <Button type="submit" disabled={loading || uploading}>
+                      {uploading ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Téléchargement...
+                        </>
+                      ) : loading ? (
+                        'Enregistrement...'
+                      ) : (
+                        'Enregistrer'
+                      )}
                     </Button>
                   </div>
                 </form>
