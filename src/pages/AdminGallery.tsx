@@ -40,6 +40,8 @@ const AdminGallery = () => {
     is_main_image: false,
     display_order: 0,
   });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     fetchImages();
@@ -65,15 +67,49 @@ const AdminGallery = () => {
     }
   };
 
+  const uploadFile = async (file: File): Promise<string> => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+    const filePath = fileName;
+    
+    const bucket = file.type.startsWith('video/') ? 'gallery-videos' : 'gallery-images';
+
+    const { error: uploadError } = await supabase.storage
+      .from(bucket)
+      .upload(filePath, file);
+
+    if (uploadError) throw uploadError;
+
+    const { data: { publicUrl } } = supabase.storage
+      .from(bucket)
+      .getPublicUrl(filePath);
+
+    return publicUrl;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
+      setUploading(true);
+      let imageUrl = formData.image_url;
+
+      // Si un nouveau fichier est sélectionné, l'uploader
+      if (selectedFile) {
+        imageUrl = await uploadFile(selectedFile);
+      }
+
+      // Vérifier qu'on a une URL d'image
+      if (!imageUrl) {
+        throw new Error("Veuillez sélectionner un fichier");
+      }
+
       if (editingId) {
         const { error } = await supabase
           .from('gallery_images')
           .update({
             ...formData,
+            image_url: imageUrl,
             updated_at: new Date().toISOString(),
           })
           .eq('id', editingId);
@@ -83,7 +119,10 @@ const AdminGallery = () => {
       } else {
         const { error } = await supabase
           .from('gallery_images')
-          .insert(formData);
+          .insert({
+            ...formData,
+            image_url: imageUrl,
+          });
 
         if (error) throw error;
         toast({ title: "Image ajoutée" });
@@ -98,6 +137,8 @@ const AdminGallery = () => {
         description: error.message,
         variant: "destructive",
       });
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -149,6 +190,7 @@ const AdminGallery = () => {
       display_order: 0,
     });
     setEditingId(null);
+    setSelectedFile(null);
   };
 
   const getCategoryLabel = (category: string) => {
@@ -217,13 +259,37 @@ const AdminGallery = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="image_url">URL de l'image</Label>
-                  <Input
-                    id="image_url"
-                    value={formData.image_url}
-                    onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                    required
-                  />
+                  <Label htmlFor="file">Fichier (Image ou Vidéo)</Label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      id="file"
+                      type="file"
+                      accept="image/*,video/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setSelectedFile(file);
+                          // Afficher un aperçu du nom du fichier
+                          toast({
+                            title: "Fichier sélectionné",
+                            description: file.name,
+                          });
+                        }
+                      }}
+                      required={!editingId && !formData.image_url}
+                    />
+                    <ImageIcon className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                  {formData.image_url && !selectedFile && (
+                    <p className="text-xs text-muted-foreground">
+                      Fichier actuel: {formData.image_url.split('/').pop()}
+                    </p>
+                  )}
+                  {selectedFile && (
+                    <p className="text-xs text-green-600">
+                      Nouveau fichier: {selectedFile.name}
+                    </p>
+                  )}
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -266,8 +332,15 @@ const AdminGallery = () => {
                   <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
                     Annuler
                   </Button>
-                  <Button type="submit">
-                    {editingId ? 'Mettre à jour' : 'Ajouter'}
+                  <Button type="submit" disabled={uploading}>
+                    {uploading ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Téléchargement...
+                      </>
+                    ) : (
+                      editingId ? 'Mettre à jour' : 'Ajouter'
+                    )}
                   </Button>
                 </div>
               </form>
