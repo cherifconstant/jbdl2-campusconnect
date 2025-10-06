@@ -78,7 +78,10 @@ const Footer = () => {
 
         <div className="border-t border-primary-foreground/20 mt-8 pt-6 text-center">
           <p className="text-sm text-primary-foreground/70">
-            © 2024 Collège Jean Baptiste de la Salle 2. Tous droits réservés.
+            © 2025 Collège Jean Baptiste de la Salle 2. Tous droits réservés.
+          </p>
+          <p className="text-xs text-primary-foreground/60 mt-2">
+            Créé par <span className="font-semibold">CampusConnect</span>
           </p>
         </div>
       </div>

@@ -20,6 +20,7 @@ import ParentsSpace from "./pages/ParentsSpace";
 import TeachersSpace from "./pages/TeachersSpace";
 import TeachersGrades from "./pages/TeachersGrades";
 import Calendar from "./pages/Calendar";
+import EnhancedCalendar from "./pages/EnhancedCalendar";
 import Messaging from "./pages/Messaging";
 import Homework from "./pages/Homework";
 import Schedule from "./pages/Schedule";
@@ -27,6 +28,8 @@ import NotFound from "./pages/NotFound";
 import PortesOuvertes from "./pages/news/PortesOuvertes";
 import ConcoursMatematiques from "./pages/news/ConcoursMatematiques";
 import OptionTheatre from "./pages/news/OptionTheatre";
+import Surveys from "./pages/Surveys";
+import Forum from "./pages/Forum";
 
 const queryClient = new QueryClient();
 
@@ -56,10 +59,12 @@ const App = () => (
           <Route path="/parents" element={<ParentsSpace />} />
           <Route path="/teachers" element={<TeachersSpace />} />
           <Route path="/teachers/grades" element={<TeachersGrades />} />
-          <Route path="/calendar" element={<Calendar />} />
+          <Route path="/calendar" element={<EnhancedCalendar />} />
           <Route path="/messaging" element={<Messaging />} />
           <Route path="/homework" element={<Homework />} />
           <Route path="/schedule" element={<Schedule />} />
+          <Route path="/surveys" element={<Surveys />} />
+          <Route path="/forum" element={<Forum />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

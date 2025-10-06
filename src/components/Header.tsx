@@ -5,6 +5,7 @@ import { Menu, User, Users, Shield, LogIn, LogOut } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import collegeLogo from '@/assets/college-logo.png';
 import { supabase } from '@/integrations/supabase/client';
+import NotificationBell from './NotificationBell';
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -91,6 +92,7 @@ const Header = () => {
 
           {/* Desktop Spaces */}
           <div className="hidden lg:flex items-center space-x-2">
+            {isAuthenticated && <NotificationBell />}
             {allSpaces.map((space) => (
               <Button
                 key={space.name}

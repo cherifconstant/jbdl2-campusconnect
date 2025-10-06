@@ -64,6 +64,48 @@ export type Database = {
           },
         ]
       }
+      announcements: {
+        Row: {
+          content: string
+          created_at: string | null
+          created_by: string
+          end_date: string | null
+          id: string
+          priority: string
+          published: boolean | null
+          start_date: string | null
+          target_audience: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          created_by: string
+          end_date?: string | null
+          id?: string
+          priority?: string
+          published?: boolean | null
+          start_date?: string | null
+          target_audience?: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          created_by?: string
+          end_date?: string | null
+          id?: string
+          priority?: string
+          published?: boolean | null
+          start_date?: string | null
+          target_audience?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       categories_2025_09_27_17_00: {
         Row: {
           created_at: string | null
@@ -192,6 +234,47 @@ export type Database = {
           },
         ]
       }
+      event_registrations: {
+        Row: {
+          created_at: string | null
+          event_id: string
+          id: string
+          notes: string | null
+          status: string
+          student_name: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          event_id: string
+          id?: string
+          notes?: string | null
+          status?: string
+          student_name?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          event_id?: string
+          id?: string
+          notes?: string | null
+          status?: string
+          student_name?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_registrations_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           class_id: string | null
@@ -199,6 +282,7 @@ export type Database = {
           created_by: string
           description: string | null
           end_date: string
+          event_category: string | null
           event_type: string
           id: string
           location: string | null
@@ -212,6 +296,7 @@ export type Database = {
           created_by: string
           description?: string | null
           end_date: string
+          event_category?: string | null
           event_type: string
           id?: string
           location?: string | null
@@ -225,6 +310,7 @@ export type Database = {
           created_by?: string
           description?: string | null
           end_date?: string
+          event_category?: string | null
           event_type?: string
           id?: string
           location?: string | null
@@ -542,6 +628,39 @@ export type Database = {
           email?: string
           id?: string
           is_active?: boolean | null
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          created_at: string | null
+          id: string
+          link: string | null
+          message: string
+          read: boolean | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          link?: string | null
+          message: string
+          read?: boolean | null
+          title: string
+          type?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          link?: string | null
+          message?: string
+          read?: boolean | null
+          title?: string
+          type?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -872,6 +991,80 @@ export type Database = {
           id?: number
           language?: string
           text?: string
+        }
+        Relationships: []
+      }
+      survey_responses: {
+        Row: {
+          created_at: string | null
+          id: string
+          responses: Json
+          survey_id: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          responses: Json
+          survey_id: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          responses?: Json
+          survey_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "survey_responses_survey_id_fkey"
+            columns: ["survey_id"]
+            isOneToOne: false
+            referencedRelation: "surveys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      surveys: {
+        Row: {
+          active: boolean | null
+          anonymous: boolean | null
+          created_at: string | null
+          created_by: string
+          description: string | null
+          end_date: string | null
+          id: string
+          questions: Json
+          start_date: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          anonymous?: boolean | null
+          created_at?: string | null
+          created_by: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          questions: Json
+          start_date?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          anonymous?: boolean | null
+          created_at?: string | null
+          created_by?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          questions?: Json
+          start_date?: string | null
+          title?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
